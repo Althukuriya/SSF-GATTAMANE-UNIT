@@ -72,6 +72,10 @@ nav.main-nav a:hover{ color:var(--ink); background:var(--tint); }
 }
 .nav-cta:hover{ background:var(--emerald-deep); transform:translateY(-1px); }
 
+.my-regs-btn{ position:relative; width:42px; height:42px; border:1px solid var(--line); border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:17px; transition:border-color .2s ease, transform .2s ease; }
+.my-regs-btn:hover{ border-color:var(--emerald); transform:translateY(-1px); }
+.my-regs-badge{ position:absolute; top:-4px; right:-4px; min-width:17px; height:17px; padding:0 4px; border-radius:100px; background:var(--gold); color:var(--ink); font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+
 .hamburger{ display:none; width:42px; height:42px; border:1px solid var(--line); border-radius:50%; background:#fff; align-items:center; justify-content:center; flex-shrink:0; flex-direction:column; gap:4px; position:relative; z-index:120; }
 .hamburger span{ display:block; width:16px; height:2px; background:var(--ink); border-radius:2px; transition:transform .25s ease, opacity .2s ease, translate .25s ease; }
 .hamburger.open span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
@@ -220,6 +224,30 @@ footer{ background:var(--ink); color:rgba(255,255,255,.7); padding:48px 0 26px; 
 .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; padding:12px 20px; border-radius:100px; font-size:13.5px; font-weight:600; z-index:400; opacity:0; pointer-events:none; transition:all .3s ease; max-width:90vw; text-align:center; }
 .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
+/* ---------- Floating contact button ---------- */
+.fab-wrap{ position:fixed; right:20px; bottom:20px; z-index:150; display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+.fab-menu{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; margin-bottom:2px; }
+.fab-item{ display:flex; align-items:center; gap:9px; background:#fff; border:1px solid var(--line); border-radius:100px; padding:10px 16px 10px 12px; font-size:13.5px; font-weight:700; color:var(--ink); box-shadow:var(--shadow); opacity:0; transform:translateY(10px) scale(.95); transition:opacity .2s ease, transform .2s ease; pointer-events:none; white-space:nowrap; }
+.fab-wrap.open .fab-item{ opacity:1; transform:translateY(0) scale(1); pointer-events:all; }
+.fab-item .ic{ width:26px; height:26px; border-radius:50%; background:var(--emerald-100); color:var(--emerald-deep); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+.fab-main{ width:56px; height:56px; border-radius:50%; background:var(--emerald); color:#fff; border:none; font-size:23px; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 24px rgba(14,107,88,.35); transition:transform .25s ease, background .2s ease; }
+.fab-main:hover{ background:var(--emerald-deep); }
+.fab-wrap.open .fab-main{ transform:rotate(45deg); }
+
+/* ---------- My Registrations modal ---------- */
+#myRegsModal{ position:fixed; inset:0; background:rgba(15,22,19,.55); z-index:500; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .25s ease; padding:16px; }
+#myRegsModal.open{ opacity:1; pointer-events:all; }
+.myregs-box{ background:#fff; border-radius:16px; padding:clamp(22px,5vw,30px); width:100%; max-width:420px; max-height:80vh; display:flex; flex-direction:column; }
+.myregs-box h3{ font-size:18px; margin-bottom:4px; }
+.myregs-box .sub{ font-size:13px; color:var(--ink-soft); margin-bottom:18px; }
+.myregs-list{ overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+.myregs-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+.myregs-row strong{ font-size:14px; display:block; }
+.myregs-row span{ font-size:12.5px; color:var(--ink-soft); }
+.myregs-row .prog-pill{ font-size:11.5px; font-weight:700; color:var(--emerald-deep); background:var(--emerald-100); padding:4px 10px; border-radius:100px; white-space:nowrap; }
+.myregs-empty{ font-size:14px; color:var(--ink-soft); text-align:center; padding:20px 0; }
+.myregs-close{ margin-top:18px; width:100%; justify-content:center; }
+
 /* ---------- Admin ---------- */
 .admin-link{ font-size:11px; color:rgba(255,255,255,.35); }
 #adminLoginModal, #adminModal{ position:fixed; inset:0; background:rgba(15,22,19,.55); z-index:500; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .25s ease; padding:16px; }
@@ -340,6 +368,9 @@ table.a-table td{ padding:9px 10px; border-bottom:1px solid var(--line); }
       <a href="#contact" id="navContact">Contact</a>
       <a href="#fest" class="nav-cta" id="navCta">Register Now</a>
     </nav>
+    <button class="my-regs-btn" id="myRegsBtn" aria-label="My registrations" title="My registrations">
+      <span class="ticket-ic">🎟</span><span class="my-regs-badge hidden" id="myRegsBadge">0</span>
+    </button>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </header>
@@ -535,6 +566,22 @@ table.a-table td{ padding:9px 10px; border-bottom:1px solid var(--line); }
 
 <!-- ================= TOAST ================= -->
 <div class="toast" id="toast"></div>
+
+<!-- ================= MY REGISTRATIONS ================= -->
+<div id="myRegsModal">
+  <div class="myregs-box">
+    <h3>My registrations</h3>
+    <p class="sub">Programs you've registered for from this device.</p>
+    <div class="myregs-list" id="myRegsList"></div>
+    <button class="btn btn-ghost myregs-close" id="myRegsCloseBtn">Close</button>
+  </div>
+</div>
+
+<!-- ================= FLOATING CONTACT BUTTON ================= -->
+<div class="fab-wrap" id="fabWrap">
+  <div class="fab-menu" id="fabMenu"></div>
+  <button class="fab-main" id="fabMainBtn" aria-label="Contact us">💬</button>
+</div>
 
 <!-- ================= ADMIN LOGIN ================= -->
 <div id="adminLoginModal">
@@ -787,6 +834,28 @@ table.a-table td{ padding:9px 10px; border-bottom:1px solid var(--line); }
             <div class="a-field"><label>Social card title</label><input type="text" id="in_contactSocialTitle"></div>
             <div class="a-field"><label>Social value</label><input type="text" id="in_contactSocial"></div>
           </div>
+
+          <h4 class="grp">Floating contact button</h4>
+          <p class="a-hint">A "💬" bubble that floats in the bottom corner of every page, with quick links (WhatsApp, phone, etc). Add as many as you like, or none.</p>
+          <div class="a-toggle"><span>Show floating contact button</span><label class="switch"><input type="checkbox" id="in_showFab"><span class="slider-tog"></span></label></div>
+          <div id="fabList"></div>
+          <div class="a-item">
+            <strong style="display:block; margin-bottom:10px; font-size:13px;">Add a quick contact button</strong>
+            <div class="a-row2">
+              <div class="a-field"><label>Button label</label><input type="text" id="newFabLabel" placeholder="e.g. WhatsApp — General queries"></div>
+              <div class="a-field"><label>Type</label>
+                <select id="newFabType">
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="phone">Phone call</option>
+                  <option value="email">Email</option>
+                  <option value="custom">Custom link</option>
+                </select>
+              </div>
+            </div>
+            <div class="a-field"><label>WhatsApp number (with country code, no + or spaces) / phone number / email / URL</label><input type="text" id="newFabValue" placeholder="e.g. 91XXXXXXXXXX"></div>
+            <div class="a-field"><label>Pre-filled WhatsApp message (optional, WhatsApp only)</label><input type="text" id="newFabMessage" placeholder="e.g. Hi, I'd like more info about the fest"></div>
+            <button class="a-btn primary" id="addFabBtn">Add button</button>
+          </div>
         </div>
 
         <!-- REGISTRATIONS -->
@@ -806,37 +875,26 @@ table.a-table td{ padding:9px 10px; border-bottom:1px solid var(--line); }
 
         <!-- SHEET SETUP -->
         <div class="admin-panel-section" data-panel="sheet">
-          <p class="a-hint">Every registration is sent straight to a Google Sheet so your team can see entries live. Set it up once — it takes about 3 minutes. A ready-to-use script file is also included alongside this website's download.</p>
+          <p class="a-hint"><strong>This step is what makes your changes visible to everyone</strong> — not just on this computer. Without it, your edits only show up in your own browser. It takes about 5 minutes and is free.</p>
           <ol style="font-size:13.5px; color:var(--ink-soft); padding-left:20px; line-height:2;">
-            <li>Create a new Google Sheet. In row 1, add headers: <strong>Timestamp, Name, Phone, Institution, Program, Category</strong> (the script also adds these automatically if the sheet is empty).</li>
-            <li>Go to <strong>Extensions → Apps Script</strong>, delete the sample code, and paste the script below (or the downloaded .gs file's contents).</li>
-            <li>Click <strong>Deploy → New deployment → Web app</strong>. Set "Execute as" to <strong>Me</strong> and "Who has access" to <strong>Anyone</strong>.</li>
-            <li>Copy the deployment URL and paste it into <strong>Fest & Programs → Google Sheet Web App URL</strong> in this panel, then Save.</li>
+            <li>Create a new Google Sheet. This will hold your registrations. (You don't need to add headers — the script adds them automatically.)</li>
+            <li>Go to <strong>Extensions → Apps Script</strong>, delete the sample code, and paste in the full script from the downloaded <strong>.gs file</strong> that came with this website (or copy it below).</li>
+            <li>In the function dropdown at the top of the Apps Script editor, select <strong>setAdminPassword</strong>, edit the password inside that function to your real password, and click <strong>Run</strong> once. This stores your password securely on Google's side — it is never visible on the website.</li>
+            <li>Click <strong>Deploy → New deployment → Web app</strong>. Set "Execute as" to <strong>Me</strong> and "Who has access" to <strong>Anyone</strong>. Approve the permissions it asks for (it needs Drive access to store your site content).</li>
+            <li>Copy the deployment URL (ends in <code>/exec</code>) and paste it into <strong>Fest & Programs → Google Sheet Web App URL</strong> in this panel, then click Save changes below.</li>
+            <li>From now on: log into this admin panel with the password you set in step 3, make your edits, and click Save. Everyone visiting the site — on any device — will see your changes within a few seconds.</li>
           </ol>
-          <div class="a-code" id="scriptCode">function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(["Timestamp", "Name", "Phone", "Institution", "Program", "Category"]);
-  }
-  var data = JSON.parse(e.postData.contents);
-  sheet.appendRow([
-    new Date(),
-    data.name,
-    data.phone,
-    data.institution,
-    data.program,
-    data.category
-  ]);
-  return ContentService.createTextOutput(JSON.stringify({status:"success"}))
-    .setMimeType(ContentService.MimeType.JSON);
-}</div>
-          <button class="a-btn" id="copyScriptBtn">Copy script to clipboard</button>
+          <p class="a-hint" style="background:#FBF3E3; color:#8A6416;">Tip: for gallery and charity photos, pasting an <strong>image URL</strong> (e.g. from Google Drive's "share" link, or any image hosting site) keeps your site fast. Uploading a lot of photos directly makes the saved file larger and slower to load.</p>
+          <div class="a-code" id="scriptCode">See the ssf-gattamane-registration-script.gs file included with your download — paste its full contents into Apps Script.</div>
+          <p style="font-size:12.5px; color:var(--ink-soft);">The script file handles three things: saving registrations to your Sheet, publishing your admin edits so every visitor sees them, and checking your password securely on Google's servers.</p>
         </div>
 
         <!-- SETTINGS -->
         <div class="admin-panel-section" data-panel="settings">
-          <div class="a-field"><label>Change admin password</label><input type="text" id="in_newPassword" placeholder="Leave blank to keep current password"></div>
-          <p class="a-hint">Content is stored in this browser (localStorage). Use Export to back up your content as a file, or Import to restore it on another device/browser.</p>
+          <p class="a-hint" id="syncStatusHint">Checking connection to your shared backend…</p>
+          <div class="a-field"><label>Local panel password (opens this admin panel on this device)</label><input type="text" id="in_newPassword" placeholder="Leave blank to keep current password"></div>
+          <p class="a-hint">This password only unlocks the admin panel on this browser — it is <strong>not</strong> the real security check. The real check happens on Google's server using the password you set with <strong>setAdminPassword</strong> in the Apps Script editor. Keep both the same so your saves actually publish.</p>
+          <p class="a-hint">Site content is cached in this browser for speed, but the source of truth is your connected Google backend (once set up under "Google Sheet Setup"). Use Export to back up your content as a file, or Import to restore it.</p>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <button class="a-btn" id="exportDataBtn">Export site content (.json)</button>
             <button class="a-btn" id="importDataBtn">Import site content</button>
@@ -946,9 +1004,14 @@ const DEFAULTS = {
   contact: {
     kicker:"Reach us", heading:"Contact the unit",
     phoneTitle:"Phone", emailTitle:"Email", addressTitle:"Address", socialTitle:"Follow us",
-    phone:"+91 00000 00000", email:"ssfgattamane@example.com", address:"Gattamane, Karnataka, India", social:"Instagram · WhatsApp Channel"
+    phone:"+91 00000 00000", email:"ssfgattamane@example.com", address:"Gattamane, Karnataka, India", social:"Instagram · WhatsApp Channel",
+    showFab:true,
+    quickButtons:[
+      {label:"WhatsApp — General queries", type:"whatsapp", value:"910000000000", message:"Hi, I'd like more information about SSF Gattamane Unit."}
+    ]
   },
-  adminPassword: "admin123"
+  adminPassword: "admin123",
+  __updatedAt: 0
 };
 
 const STORAGE_KEY = "ssf_gattamane_site_data";
@@ -1061,8 +1124,17 @@ function renderSite(){
   const pg = document.getElementById('programsGrid');
   const visiblePrograms = DATA.fest.programs.filter(p=>p.visible);
   pg.innerHTML = visiblePrograms.map(p=>
-    '<div class="program-card"><span class="tag">'+esc(p.tag)+'</span><h4>'+esc(p.name)+'</h4><p>'+esc(p.desc)+'</p>'+(p.fee?'<div class="fee">'+esc(p.fee)+'</div>':'')+'</div>'
+    '<div class="program-card" data-program="'+esc(p.name)+'" style="cursor:pointer;" title="Click to register for this program"><span class="tag">'+esc(p.tag)+'</span><h4>'+esc(p.name)+'</h4><p>'+esc(p.desc)+'</p>'+(p.fee?'<div class="fee">'+esc(p.fee)+'</div>':'')+'</div>'
   ).join('') || '<p style="color:var(--ink-soft);">Programs will be announced soon.</p>';
+  pg.querySelectorAll('.program-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      if(!DATA.fest.open) return;
+      const progSelEl = document.getElementById('regProgram');
+      progSelEl.value = card.dataset.program;
+      document.getElementById('fest').scrollIntoView({behavior:'smooth', block:'start'});
+      setTimeout(()=>{ document.getElementById('regName').focus(); }, 500);
+    });
+  });
 
   const progSel = document.getElementById('regProgram');
   progSel.innerHTML = '<option value="" disabled selected>'+esc(DATA.regForm.placeholderProgramOpt)+'</option>' + visiblePrograms.map(p=>'<option>'+esc(p.name)+'</option>').join('');
@@ -1119,6 +1191,8 @@ function renderSite(){
   document.getElementById('contactEmail').textContent = DATA.contact.email;
   document.getElementById('contactAddress').textContent = DATA.contact.address;
   document.getElementById('contactSocial').textContent = DATA.contact.social;
+  renderFab();
+  updateMyRegsBadge();
 
   // Footer
   document.getElementById('footerBlurb').textContent = DATA.footer.blurb;
@@ -1208,12 +1282,13 @@ document.getElementById('regForm').addEventListener('submit', function(e){
 
   const entry = { name, phone, institution:inst, program, category, time:new Date().toLocaleString() };
   const regs = loadRegs(); regs.push(entry); saveRegs(regs);
+  updateMyRegsBadge();
 
   if(DATA.fest.sheetUrl){
     fetch(DATA.fest.sheetUrl, {
       method:'POST', mode:'no-cors',
       headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify(entry)
+      body: JSON.stringify({ type:'registration', name, phone, institution:inst, program, category })
     }).catch(()=>{});
   }
 
@@ -1221,6 +1296,53 @@ document.getElementById('regForm').addEventListener('submit', function(e){
   msg.textContent = 'Thanks '+name+'! You are registered for '+program+' ('+category+').';
   this.reset();
   toast('Registration submitted successfully');
+});
+
+/* ============ MY REGISTRATIONS (visitor's own device) ============ */
+function updateMyRegsBadge(){
+  const regs = loadRegs();
+  const badge = document.getElementById('myRegsBadge');
+  if(regs.length > 0){ badge.textContent = regs.length; badge.classList.remove('hidden'); }
+  else{ badge.classList.add('hidden'); }
+}
+function renderMyRegsModal(){
+  const regs = loadRegs();
+  const list = document.getElementById('myRegsList');
+  if(!regs.length){
+    list.innerHTML = '<div class="myregs-empty">You haven\'t registered for any program on this device yet.</div>';
+    return;
+  }
+  list.innerHTML = regs.slice().reverse().map(r=>
+    '<div class="myregs-row"><div><strong>'+esc(r.name)+'</strong><span>'+esc(r.category||'')+'</span></div><span class="prog-pill">'+esc(r.program)+'</span></div>'
+  ).join('');
+}
+document.getElementById('myRegsBtn').addEventListener('click', ()=>{
+  renderMyRegsModal();
+  document.getElementById('myRegsModal').classList.add('open');
+});
+document.getElementById('myRegsCloseBtn').addEventListener('click', ()=>document.getElementById('myRegsModal').classList.remove('open'));
+document.getElementById('myRegsModal').addEventListener('click', e=>{ if(e.target.id==='myRegsModal') e.currentTarget.classList.remove('open'); });
+
+/* ============ FLOATING CONTACT BUTTON ============ */
+function renderFab(){
+  const wrap = document.getElementById('fabWrap');
+  wrap.classList.toggle('hidden', !DATA.contact.showFab || !DATA.contact.quickButtons.length);
+  const menu = document.getElementById('fabMenu');
+  menu.innerHTML = DATA.contact.quickButtons.map(b=>{
+    let href = '#', icon = '💬';
+    if(b.type === 'whatsapp'){ const digits = (b.value||'').replace(/[^0-9]/g,''); href = 'https://wa.me/'+digits+(b.message?'?text='+encodeURIComponent(b.message):''); icon='✆'; }
+    else if(b.type === 'phone'){ href = 'tel:'+(b.value||'').replace(/[^0-9+]/g,''); icon='☎'; }
+    else if(b.type === 'email'){ href = 'mailto:'+(b.value||''); icon='✉'; }
+    else{ href = b.value || '#'; icon='🔗'; }
+    return '<a class="fab-item" href="'+esc(href)+'" target="_blank" rel="noopener"><span class="ic">'+icon+'</span>'+esc(b.label)+'</a>';
+  }).join('');
+}
+document.getElementById('fabMainBtn').addEventListener('click', ()=>{
+  document.getElementById('fabWrap').classList.toggle('open');
+});
+document.addEventListener('click', e=>{
+  const wrap = document.getElementById('fabWrap');
+  if(wrap.classList.contains('open') && !wrap.contains(e.target)) wrap.classList.remove('open');
 });
 
 /* ============ ADMIN: LOGIN ============ */
@@ -1350,6 +1472,8 @@ function populateAdminForm(){
   document.getElementById('in_contactEmail').value = DATA.contact.email;
   document.getElementById('in_contactAddress').value = DATA.contact.address;
   document.getElementById('in_contactSocial').value = DATA.contact.social;
+  document.getElementById('in_showFab').checked = DATA.contact.showFab;
+  renderFabList();
 
   renderHeroImgList();
   renderRegTable();
@@ -1496,12 +1620,6 @@ document.getElementById('clearRegBtn').addEventListener('click', ()=>{
   }
 });
 
-/* ---- Script copy ---- */
-document.getElementById('copyScriptBtn').addEventListener('click', ()=>{
-  const text = document.getElementById('scriptCode').textContent;
-  navigator.clipboard.writeText(text).then(()=>toast('Script copied to clipboard')).catch(()=>toast('Copy manually — select the text above'));
-});
-
 /* ---- Export / Import / Reset ---- */
 function downloadBlob(content, filename, type){
   const blob = new Blob([content], {type});
@@ -1618,17 +1736,97 @@ document.getElementById('adminSaveBtn').addEventListener('click', ()=>{
   DATA.contact.email = document.getElementById('in_contactEmail').value.trim();
   DATA.contact.address = document.getElementById('in_contactAddress').value.trim();
   DATA.contact.social = document.getElementById('in_contactSocial').value.trim();
+  DATA.contact.showFab = document.getElementById('in_showFab').checked;
 
   const newPass = document.getElementById('in_newPassword').value.trim();
   if(newPass){ DATA.adminPassword = newPass; document.getElementById('in_newPassword').value=''; }
 
+  DATA.__updatedAt = Date.now();
   saveData();
   renderSite();
-  toast('Changes saved');
+  publishToBackend();
 });
+
+/* ---- Quick contact (FAB) buttons admin list ---- */
+function renderFabList(){
+  const el = document.getElementById('fabList');
+  el.innerHTML = DATA.contact.quickButtons.map((b,i)=>
+    '<div class="a-item"><div class="a-item-top"><strong>'+esc(b.label)+' <span style="color:var(--ink-soft); font-weight:500;">— '+esc(b.type)+'</span></strong>'+
+    '<button class="a-btn danger fab-del" data-i="'+i+'">Remove</button></div>'+
+    '<p style="font-size:12.5px; color:var(--ink-soft);">'+esc(b.value)+(b.message?' · "'+esc(b.message)+'"':'')+'</p></div>'
+  ).join('') || '<p style="color:var(--ink-soft); font-size:13px;">No quick contact buttons yet.</p>';
+  el.querySelectorAll('.fab-del').forEach(btn=>btn.addEventListener('click', ()=>{ DATA.contact.quickButtons.splice(+btn.dataset.i,1); renderFabList(); }));
+}
+document.getElementById('addFabBtn').addEventListener('click', ()=>{
+  const label = document.getElementById('newFabLabel').value.trim();
+  const type = document.getElementById('newFabType').value;
+  const value = document.getElementById('newFabValue').value.trim();
+  const message = document.getElementById('newFabMessage').value.trim();
+  if(!label || !value){ toast('Enter a label and a value'); return; }
+  DATA.contact.quickButtons.push({label, type, value, message});
+  ['newFabLabel','newFabValue','newFabMessage'].forEach(id=>document.getElementById(id).value='');
+  renderFabList(); toast('Contact button added');
+});
+
+/* ============ SHARED BACKEND SYNC ============ */
+/* Publishes the admin's edits to the connected Google Apps Script backend so every
+   visitor sees them (not just this browser). Falls back silently if no backend is
+   configured yet, or if the request fails — content still stays saved locally. */
+function publishToBackend(){
+  if(!DATA.fest.sheetUrl){
+    toast('Saved on this device. Set up "Google Sheet Setup" so everyone sees your changes.');
+    return;
+  }
+  toast('Saving and publishing…');
+  fetch(DATA.fest.sheetUrl, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain'},
+    body: JSON.stringify({ type:'content_update', password: DATA.adminPassword, content: DATA })
+  }).catch(()=>{});
+
+  setTimeout(()=>{
+    fetch(DATA.fest.sheetUrl + '?action=content')
+      .then(r=>r.json())
+      .then(res=>{
+        if(res && res.status==='success' && res.content && res.content.__updatedAt === DATA.__updatedAt){
+          toast('Saved — now live for everyone');
+        }else{
+          toast('Saved on this device, but could not confirm it published. Check that your admin password matches the one set with setAdminPassword in Apps Script.');
+        }
+      })
+      .catch(()=>{ toast('Saved on this device. Could not reach the backend to confirm publishing.'); });
+  }, 1800);
+}
+
+function fetchRemoteContent(){
+  if(!DATA.fest.sheetUrl){
+    const hint = document.getElementById('syncStatusHint');
+    if(hint) hint.textContent = 'No shared backend connected yet — changes only save to this browser. Set one up under "Google Sheet Setup".';
+    return;
+  }
+  fetch(DATA.fest.sheetUrl + '?action=content')
+    .then(r=>r.json())
+    .then(res=>{
+      const hint = document.getElementById('syncStatusHint');
+      if(res && res.status==='success' && res.content){
+        DATA = deepMerge(deepDefaults(), res.content);
+        saveData();
+        renderSite();
+        if(hint) hint.textContent = 'Connected — this site is showing the shared, published content.';
+      }else{
+        if(hint) hint.textContent = 'Connected to the backend, but nothing has been published yet. Make an edit and click Save changes.';
+      }
+    })
+    .catch(()=>{
+      const hint = document.getElementById('syncStatusHint');
+      if(hint) hint.textContent = 'Could not reach the backend right now — showing the last saved version on this device.';
+    });
+}
 
 /* ============ INIT ============ */
 renderSite();
+updateMyRegsBadge();
+fetchRemoteContent();
 
 })();
 </script>
