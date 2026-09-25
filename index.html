@@ -725,7 +725,11 @@ table.a-table td{ padding:9px 10px; border-bottom:1px solid var(--line); }
             <div class="a-field"><label>Section heading</label><input type="text" id="in_festHeading"></div>
           </div>
           <div class="a-field"><label>Categories (comma separated)</label><input type="text" id="in_categories" placeholder="Sub Junior, Junior, Senior, Open"></div>
-          <div class="a-field"><label>Google Sheet Web App URL</label><input type="url" id="in_sheetUrl" placeholder="Paste from Apps Script deployment — see 'Google Sheet Setup' tab"></div>
+          <div class="a-field">
+            <label>Backend connection (Google Sheet / Apps Script)</label>
+            <input type="text" id="in_sheetUrlDisplay" readonly style="background:var(--tint); color:var(--ink-soft);">
+            <p style="font-size:12px; color:var(--ink-soft); margin-top:6px;">This can't be set here — it has to be written directly into the file's code once, so it works for every visitor, not just this browser. See the "Google Sheet Setup" tab.</p>
+          </div>
           <h4 class="grp">Programs</h4>
           <div id="programList"></div>
           <div class="a-item">
@@ -876,17 +880,19 @@ table.a-table td{ padding:9px 10px; border-bottom:1px solid var(--line); }
 
         <!-- SHEET SETUP -->
         <div class="admin-panel-section" data-panel="sheet">
-          <p class="a-hint"><strong>This step is what makes your changes visible to everyone</strong> — not just on this computer. Without it, your edits only show up in your own browser. It takes about 5 minutes and is free.</p>
+          <p class="a-hint"><strong>This step is what makes your changes visible to everyone</strong> — not just on this computer. Without it, your edits only show up in your own browser, and registrations from other visitors go nowhere. It takes about 5 minutes and is free.</p>
+          <p class="a-hint" style="background:#FBF3E3; color:#8A6416;">Important: the connection link below <strong>cannot</strong> be pasted into this admin panel — it has to be written directly into the website's file, once, because this is a plain file with no server of its own. Every visitor loads the exact same file, so that's the only place a setting can live that everyone shares. It's a five-second edit, step 5 below.</p>
           <ol style="font-size:13.5px; color:var(--ink-soft); padding-left:20px; line-height:2;">
             <li>Create a new Google Sheet. This will hold your registrations. (You don't need to add headers — the script adds them automatically.)</li>
-            <li>Go to <strong>Extensions → Apps Script</strong>, delete the sample code, and paste in the full script from the downloaded <strong>.gs file</strong> that came with this website (or copy it below).</li>
+            <li>Go to <strong>Extensions → Apps Script</strong>, delete the sample code, and paste in the full script from the downloaded <strong>.gs file</strong> that came with this website.</li>
             <li>In the function dropdown at the top of the Apps Script editor, select <strong>setAdminPassword</strong>, edit the password inside that function to your real password, and click <strong>Run</strong> once. This stores your password securely on Google's side — it is never visible on the website.</li>
-            <li>Click <strong>Deploy → New deployment → Web app</strong>. Set "Execute as" to <strong>Me</strong> and "Who has access" to <strong>Anyone</strong>. Approve the permissions it asks for (it needs Drive access to store your site content).</li>
-            <li>Copy the deployment URL (ends in <code>/exec</code>) and paste it into <strong>Fest & Programs → Google Sheet Web App URL</strong> in this panel, then click Save changes below.</li>
-            <li>From now on: log into this admin panel with the password you set in step 3, make your edits, and click Save. Everyone visiting the site — on any device — will see your changes within a few seconds.</li>
+            <li>Click <strong>Deploy → New deployment → Web app</strong>. Set "Execute as" to <strong>Me</strong> and "Who has access" to <strong>Anyone</strong>. Approve the permissions it asks for (it needs Drive access to store your site content). Copy the URL you're given — it ends in <code>/exec</code>.</li>
+            <li>Open the website's HTML file in any text editor (Notepad, TextEdit, VS Code, etc.). Near the very top of the <code>&lt;script&gt;</code> section, find this line:
+              <div class="a-code">const BACKEND_URL = "";</div>
+              Paste your URL between the quotes, so it looks like <code>const BACKEND_URL = "https://script.google.com/macros/s/AKfycb.../exec";</code>, then save the file and re-upload it to Netlify (replacing the old one).</li>
+            <li>From now on: log into this admin panel with the password you set in step 3, make your edits, and click Save. Everyone visiting the site — on any device — will see your changes within a few seconds. The "Fest & Programs" tab shows the currently connected URL so you can double check it's set.</li>
           </ol>
           <p class="a-hint" style="background:#FBF3E3; color:#8A6416;">Tip: for gallery and charity photos, pasting an <strong>image URL</strong> (e.g. from Google Drive's "share" link, or any image hosting site) keeps your site fast. Uploading a lot of photos directly makes the saved file larger and slower to load.</p>
-          <div class="a-code" id="scriptCode">See the ssf-gattamane-registration-script.gs file included with your download — paste its full contents into Apps Script.</div>
           <p style="font-size:12.5px; color:var(--ink-soft);">The script file handles three things: saving registrations to your Sheet, publishing your admin edits so every visitor sees them, and checking your password securely on Google's servers.</p>
         </div>
 
@@ -915,6 +921,15 @@ table.a-table td{ padding:9px 10px; border-bottom:1px solid var(--line); }
 
 <script>
 (function(){
+
+/* ============ BACKEND CONNECTION ============
+   This is the ONE thing that must be identical for every visitor, on every
+   device, since this file is hosted as a static page with no server of its
+   own. Paste your Google Apps Script Web App URL (ends in /exec) between
+   the quotes below, then re-upload this file wherever it's hosted.
+   Full setup steps: Admin Panel -> Google Sheet Setup tab.
+   ============================================================ */
+const BACKEND_URL = "";
 
 /* ============ DEFAULT DATA ============ */
 const DEFAULTS = {
@@ -1296,8 +1311,8 @@ document.getElementById('regForm').addEventListener('submit', function(e){
 });
 
 function sendRegUpdate(payload){
-  if(!DATA.fest.sheetUrl) return;
-  fetch(DATA.fest.sheetUrl, {
+  if(!BACKEND_URL) return;
+  fetch(BACKEND_URL, {
     method:'POST', mode:'no-cors',
     headers:{'Content-Type':'text/plain'},
     body: JSON.stringify(payload)
@@ -1508,7 +1523,7 @@ function populateAdminForm(){
   document.getElementById('in_festKicker').value = DATA.fest.kicker;
   document.getElementById('in_festHeading').value = DATA.fest.heading;
   document.getElementById('in_categories').value = DATA.fest.categories.join(', ');
-  document.getElementById('in_sheetUrl').value = DATA.fest.sheetUrl;
+  document.getElementById('in_sheetUrlDisplay').value = BACKEND_URL || 'Not set yet — see Google Sheet Setup tab';
   renderProgramList();
 
   document.getElementById('in_regInfoTitle').value = DATA.regForm.infoTitle;
@@ -1821,7 +1836,6 @@ document.getElementById('adminSaveBtn').addEventListener('click', ()=>{
   DATA.fest.kicker = document.getElementById('in_festKicker').value.trim();
   DATA.fest.heading = document.getElementById('in_festHeading').value.trim();
   DATA.fest.categories = document.getElementById('in_categories').value.split(',').map(s=>s.trim()).filter(Boolean);
-  DATA.fest.sheetUrl = document.getElementById('in_sheetUrl').value.trim();
 
   DATA.regForm.infoTitle = document.getElementById('in_regInfoTitle').value.trim();
   DATA.regForm.infoDesc = document.getElementById('in_regInfoDesc').value.trim();
@@ -1909,19 +1923,19 @@ document.getElementById('addFabBtn').addEventListener('click', ()=>{
    visitor sees them (not just this browser). Falls back silently if no backend is
    configured yet, or if the request fails — content still stays saved locally. */
 function publishToBackend(){
-  if(!DATA.fest.sheetUrl){
-    toast('Saved on this device. Set up "Google Sheet Setup" so everyone sees your changes.');
+  if(!BACKEND_URL){
+    toast('Saved on this device only. Add your Apps Script URL to the BACKEND_URL constant in the file — see "Google Sheet Setup" tab.');
     return;
   }
   toast('Saving and publishing…');
-  fetch(DATA.fest.sheetUrl, {
+  fetch(BACKEND_URL, {
     method:'POST', mode:'no-cors',
     headers:{'Content-Type':'text/plain'},
     body: JSON.stringify({ type:'content_update', password: DATA.adminPassword, content: DATA })
   }).catch(()=>{});
 
   setTimeout(()=>{
-    fetch(DATA.fest.sheetUrl + '?action=content')
+    fetch(BACKEND_URL + '?action=content')
       .then(r=>r.json())
       .then(res=>{
         if(res && res.status==='success' && res.content && res.content.__updatedAt === DATA.__updatedAt){
@@ -1935,12 +1949,12 @@ function publishToBackend(){
 }
 
 function fetchRemoteContent(){
-  if(!DATA.fest.sheetUrl){
+  if(!BACKEND_URL){
     const hint = document.getElementById('syncStatusHint');
-    if(hint) hint.textContent = 'No shared backend connected yet — changes only save to this browser. Set one up under "Google Sheet Setup".';
+    if(hint) hint.textContent = 'No shared backend connected yet — the BACKEND_URL constant near the top of this file\'s code is empty. See "Google Sheet Setup" tab for how to set it.';
     return;
   }
-  fetch(DATA.fest.sheetUrl + '?action=content')
+  fetch(BACKEND_URL + '?action=content')
     .then(r=>r.json())
     .then(res=>{
       const hint = document.getElementById('syncStatusHint');
